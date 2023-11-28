@@ -41,7 +41,7 @@ runs:
     - name: Run cloc analysis
       shell: bash
       run: |
-        cloc --out=${{ env.tmp_dir }}/cloc.txt ${{ inputs.source_path }}
+        cloc --out=${{ env.tmp_dir }}/ruleengine_out/cloc.txt ${{ inputs.source_path }}
 
     - name: Get action version
       shell: bash
