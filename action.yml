@@ -1,6 +1,6 @@
 # A GitHub Action that allows to run the RuleEngine on arbitrary GitHub repositories.
 
-name: 'Run RuleEngine'
+name: "Run RuleEngine"
 description: |
   'Reverse-engineers a project''s source into a Palladio Component Model.
   Uploads the PCM as an artifact called `ruleengine`.
@@ -9,13 +9,13 @@ description: |
 
 inputs:
   source_path:
-    description: 'The location of the project to reverse-engineer'
+    description: "The location of the project to reverse-engineer"
     required: true
-    default: '.'
+    default: "."
   rules:
-    description: 'The rules to reverse-engineer with, as a comma-separated list'
+    description: "The rules to reverse-engineer with, as a comma-separated list"
     required: true
-    default: 'SPRING,MAVEN'
+    default: "SPRING,MAVEN"
 
 runs:
   using: "composite"
@@ -23,8 +23,8 @@ runs:
     - name: Set Up JDK 17
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: "temurin"
+        java-version: "17"
 
     - name: Create temporary directory
       shell: bash
@@ -34,13 +34,15 @@ runs:
         mkdir $TMP_DIR/ruleengine_out
 
     - name: Install cloc
+      shell: bash
       run: |
         sudo apt install cloc
 
     - name: Run cloc analysis
+      shell: bash
       run: |
         cloc --out=${{ env.tmp_dir }}/cloc.txt ${{ inputs.source_path }}
-        
+
     - name: Get action version
       shell: bash
       # Assuming a format like in the GitHub Actions documentation:
@@ -84,7 +86,7 @@ runs:
       shell: bash
       working-directory: ${{ env.tmp_dir }}/ruleengine
       run: ./eclipse -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"
-      
+
     - name: Prepare analysis results for upload
       shell: bash
       working-directory: ${{ env.tmp_dir }}
@@ -99,7 +101,7 @@ runs:
       with:
         name: ruleengine
         path: ${{ env.tmp_dir }}/ruleengine_out
-      
+
     - name: Prepare Eclipse logs for upload
       if: failure()
       shell: bash
