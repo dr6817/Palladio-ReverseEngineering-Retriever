@@ -88,7 +88,11 @@ runs:
       env:
         RULEENGINE_COMMAND: './eclipse -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"'
       run: |
-        time -p -o "${{ env.tmp_dir }}/ruleengine_out/timing.txt" $ECLIPSE_COMMAND
+        which time
+        type -a time
+        sudo apt install time
+        type -a time
+        /usr/bin/time -p -o "${{ env.tmp_dir }}/ruleengine_out/timing.txt" $ECLIPSE_COMMAND
 
     - name: Prepare analysis results for upload
       shell: bash
