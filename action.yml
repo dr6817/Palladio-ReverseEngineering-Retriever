@@ -85,9 +85,10 @@ runs:
     - name: Execute RuleEngine
       shell: bash
       working-directory: ${{ env.tmp_dir }}/ruleengine
+      env:
+        RULEENGINE_COMMAND: './eclipse -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"'
       run: |
-        ruleengine_command="./eclipse -i '${{ github.workspace }}/${{ inputs.source_path }}' -o '${{ env.tmp_dir }}/ruleengine_out' -r '${{ inputs.rules }}'"
-        { time $ruleengine_command; } 2>&1 | grep real | cut -f2 > "${{ env.tmp_dir }}/ruleengine_out/timing.txt"
+        { time $RULEENGINE_COMMAND; } 2>&1 | grep real | cut -f2 > "${{ env.tmp_dir }}/ruleengine_out/timing.txt"
 
     - name: Prepare analysis results for upload
       shell: bash
