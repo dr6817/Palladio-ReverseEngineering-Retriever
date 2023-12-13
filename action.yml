@@ -42,7 +42,7 @@ runs:
       run: |
         SYSTEM_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/system_info.txt
         echo "SYSTEM_INFO_FILE=$SYSTEM_INFO_FILE" >> $GITHUB_ENV
-        echo "system information:" >> $CLOC_INFO_FILE
+        echo "system information:" >> $SYSTEM_INFO_FILE
         neofetch os distro kernel cpu gpu memory --stdout > $SYSTEM_INFO_FILE
         echo "SYSTEM_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/system_info.txt" >> $GITHUB_ENV
     
@@ -109,7 +109,7 @@ runs:
         /usr/bin/time -p -o "$TIMING_INFO_FILE" $RULEENGINE_COMMAND
         # Read and reformat the timing information
         {
-          echo "Execution Time:"
+          echo "RuleEngine execution time:"
           while IFS= read -r line; do
             case "$line" in
               real*) echo "Total Elapsed Time (seconds): ${line#* }" ;;
