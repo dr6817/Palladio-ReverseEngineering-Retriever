@@ -33,6 +33,16 @@ runs:
         echo "tmp_dir=$TMP_DIR" >> $GITHUB_ENV
         mkdir $TMP_DIR/ruleengine_out
 
+    - name: Install Neofetch
+      shell: bash
+      run: sudo apt-get install -y neofetch
+    
+    - name: Gather Specific System Information with Neofetch
+      shell: bash
+      run: |
+        SYSTEM_INFO_FILE=${{ env.tmp_dir }}/system_info.txt
+        neofetch --stdout --disable uptime packages shell theme icons --gpu_type all --disk_show / --color_blocks off --off --config none > $SYSTEM_INFO_FILE
+    
     - name: Install cloc
       shell: bash
       run: |
