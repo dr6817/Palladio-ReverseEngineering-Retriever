@@ -33,6 +33,18 @@ runs:
         echo "tmp_dir=$TMP_DIR" >> $GITHUB_ENV
         mkdir $TMP_DIR/ruleengine_out
 
+    - name: Gather Git Repository Info
+      shell: bash
+      run: |
+        GIT_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/git_info.txt
+        echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
+        {
+          echo "Git repository information:"
+          echo "Repository URL: $(git config --get remote.origin.url)"
+          echo "Current Branch: $(git branch --show-current)"
+          echo "Latest Commit: $(git log -1 --pretty=format:"%H - %s")"
+        } > $GIT_INFO_FILE
+    
     - name: Install Neofetch
       shell: bash
       run: sudo apt-get install -y neofetch
@@ -128,6 +140,8 @@ runs:
       run: |
         # Combine files into one, with empty lines between file contents
         {
+          cat $GIT_INFO_FILE
+          echo
           cat $SYSTEM_INFO_FILE
           echo
           cat $CLOC_INFO_FILE
@@ -135,7 +149,7 @@ runs:
           cat $TIMING_INFO_FILE
         } > ${{ env.tmp_dir }}/ruleengine_out/report.txt
         # Delete the original files
-        rm -f $SYSTEM_INFO_FILE $CLOC_INFO_FILE $TIMING_INFO_FILE
+        rm -f $GIT_INFO_FILE $SYSTEM_INFO_FILE $CLOC_INFO_FILE $TIMING_INFO_FILE
 
 
     - name: Prepare analysis results for upload
