@@ -130,7 +130,7 @@ runs:
         RULEENGINE_OUTPUT_FILE=${{ env.tmp_dir }}/ruleengine_output.txt
         COMMAND="./eclipse -i '${{ github.workspace }}/${{ inputs.source_path }}' -o '${{ env.tmp_dir }}/ruleengine_out' -r '${{ inputs.rules }}'"
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
-        hyperfine --show-output --export-markdown $TIMING_INFO_FILE '$COMMAND'
+        hyperfine --show-output --export-markdown $TIMING_INFO_FILE $COMMAND
         #hyperfine --show-output --export-markdown $TIMING_INFO_FILE "./eclipse -i '${{ github.workspace }}/${{ inputs.source_path }}' -o '${{ env.tmp_dir }}/ruleengine_out' -r '${{ inputs.rules }}'"
         # Execute and benchmark with hyperfine, capturing the output
         #hyperfine --export-markdown $TIMING_INFO_FILE --prepare 'echo "Running RuleEngine" > $RULEENGINE_OUTPUT_FILE' "$RULEENGINE_COMMAND >> $RULEENGINE_OUTPUT_FILE 2>&1"
