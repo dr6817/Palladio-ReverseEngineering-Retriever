@@ -114,26 +114,24 @@ runs:
       working-directory: ${{ env.tmp_dir }}
       run: unzip ruleengine.zip -d ruleengine
 
-    - name: Execute RuleEngine
+    - name: Install Hyperfine
+      run: |
+        wget https://github.com/sharkdp/hyperfine/releases/download/v1.16.1/hyperfine_1.16.1_amd64.deb
+        sudo dpkg -i hyperfine_1.16.1_amd64.deb
+
+    - name: Execute RuleEngine with Hyperfine
       shell: bash
       working-directory: ${{ env.tmp_dir }}/ruleengine
       env:
         RULEENGINE_COMMAND: './eclipse -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"'
       run: |
         TIMING_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/timing.txt
+        RULEENGINE_OUTPUT_FILE=${{ env.tmp_dir }}/ruleengine_output.txt
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
-        /usr/bin/time -p -o "$TIMING_INFO_FILE" $RULEENGINE_COMMAND
-        # Read and reformat the timing information
-        {
-          echo "RuleEngine execution time:"
-          while IFS= read -r line; do
-            case "$line" in
-              real*) echo "Total Elapsed Time (seconds): ${line#* }" ;;
-              user*) echo "User CPU Time (seconds): ${line#* }" ;;
-              sys*) echo "System CPU Time (seconds): ${line#* }" ;;
-            esac
-          done < "$TIMING_INFO_FILE"
-        } > "${TIMING_INFO_FILE}.tmp" && mv "${TIMING_INFO_FILE}.tmp" "$TIMING_INFO_FILE"
+        # Execute and benchmark with hyperfine, capturing the output
+        hyperfine --export-markdown $TIMING_INFO_FILE --prepare 'echo "Running RuleEngine" > $RULEENGINE_OUTPUT_FILE' "$RULEENGINE_COMMAND >> $RULEENGINE_OUTPUT_FILE 2>&1"
+        # Display the output
+        cat $RULEENGINE_OUTPUT_FILE
 
     - name: Combine and Clean Up Files
       shell: bash
@@ -144,9 +142,9 @@ runs:
           echo
           cat $SYSTEM_INFO_FILE
           echo
-          cat $CLOC_INFO_FILE
-          echo
           cat $TIMING_INFO_FILE
+          echo
+          cat $CLOC_INFO_FILE
         } > ${{ env.tmp_dir }}/ruleengine_out/report.txt
         # Delete the original files
         rm -f $GIT_INFO_FILE $SYSTEM_INFO_FILE $CLOC_INFO_FILE $TIMING_INFO_FILE
