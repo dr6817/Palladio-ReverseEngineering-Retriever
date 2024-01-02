@@ -16,6 +16,10 @@ inputs:
     description: "The rules to reverse-engineer with, as a comma-separated list"
     required: true
     default: "SPRING,MAVEN"
+  benchmark:
+    description: "Whether to benchmark execution time with Hyperfine"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -36,10 +40,10 @@ runs:
     - name: Gather Git Repository Info
       shell: bash
       run: |
-        GIT_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/git_info.txt
+        GIT_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/git_info.md
         echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
         {
-          echo "Git repository information:"
+          echo "# Git repository information"
           echo "Repository URL: $(git config --get remote.origin.url)"
           echo "Current Branch: $(git branch --show-current)"
           echo "Latest Commit: $(git log -1 --pretty=format:"%H - %s")"
@@ -52,12 +56,12 @@ runs:
     - name: Gather Specific System Information with Neofetch
       shell: bash
       run: |
-        SYSTEM_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/system_info.txt
+        SYSTEM_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/system_info.md
         echo "SYSTEM_INFO_FILE=$SYSTEM_INFO_FILE" >> $GITHUB_ENV
         echo "SYSTEM_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/system_info.txt" >> $GITHUB_ENV
         {
-          echo "system information:"
-          neofetch os distro kernel cpu gpu memory --stdout
+          echo "# System information"
+          neofetch os distro kernel cpu gpu memory --stdout | sed -E 's/^(.*): (.*)$/| \1 | \2 |'
         } > $SYSTEM_INFO_FILE
     
     - name: Install cloc
@@ -68,10 +72,10 @@ runs:
     - name: Run cloc analysis
       shell: bash
       run: |
-        CLOC_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/cloc.txt
+        CLOC_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/cloc.md
         echo "CLOC_INFO_FILE=$CLOC_INFO_FILE" >> $GITHUB_ENV
         {
-          echo "cloc analysis output:"
+          echo "# Cloc analysis"
           cloc ${{ inputs.source_path }} --unicode --autoconf --diff-timeout 300 --docstring-as-code --read-binary-files --md --quiet
         } > $CLOC_INFO_FILE
 
@@ -115,18 +119,43 @@ runs:
       run: unzip ruleengine.zip -d ruleengine
 
     - name: Install Hyperfine
+      if: inputs.benchmark == 'true'
       shell: bash
       run: |
         wget https://github.com/sharkdp/hyperfine/releases/download/v1.16.1/hyperfine_1.16.1_amd64.deb
         sudo dpkg -i hyperfine_1.16.1_amd64.deb
 
-    - name: Execute RuleEngine with Hyperfine
+    - name: Execute RuleEngine
       shell: bash
       working-directory: ${{ env.tmp_dir }}/ruleengine
+      env:
+        RULEENGINE_COMMAND: './eclipse -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"'
+        TIMING_INFO_FILE: ${{ env.tmp_dir }}/ruleengine_out/timing.md
       run: |
-        TIMING_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/timing.txt
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
-        hyperfine --show-output --export-markdown $TIMING_INFO_FILE -- "./eclipse -i '${{ github.workspace }}/${{ inputs.source_path }}' -o '${{ env.tmp_dir }}/ruleengine_out' -r '${{ inputs.rules }}'"
+        if [ "${{ inputs.benchmark }}" = "true" ]; then
+          # Execute with Hyperfine
+          #hyperfine --show-output --export-markdown $TIMING_INFO_FILE -- "./eclipse -i '${{ github.workspace }}/${{ inputs.source_path }}' -o '${{ env.tmp_dir }}/ruleengine_out' -r '${{ inputs.rules }}'"
+          hyperfine --show-output --export-markdown $TIMING_INFO_FILE "$RULEENGINE_COMMAND"
+          # Prepend header
+          { echo "# RuleEngine execution time"; cat $TIMING_INFO_FILE; } > "${TIMING_INFO_FILE}.tmp" && mv "${TIMING_INFO_FILE}.tmp" "$TIMING_INFO_FILE"
+        else
+          # Execute with /usr/bin/time
+          /usr/bin/time -p -o "$TIMING_INFO_FILE" $RULEENGINE_COMMAND
+          # Read and reformat the timing information
+          {
+            echo "# RuleEngine execution time"
+            echo "| Metric | Time (seconds) |"
+            echo "| --- | ---: |"
+            while IFS= read -r line; do
+              case "$line" in
+                real*) echo "| Total Elapsed Time | ${line#* } |" ;;
+                user*) echo "| User CPU Time | ${line#* } |" ;;
+                sys*) echo "| System CPU Time | ${line#* } |" ;;
+              esac
+            done < "$TIMING_INFO_FILE"
+          } > "${TIMING_INFO_FILE}.tmp" && mv "${TIMING_INFO_FILE}.tmp" "$TIMING_INFO_FILE"
+        fi
     
     - name: Combine and Clean Up Files
       shell: bash
@@ -137,11 +166,10 @@ runs:
           echo
           cat $SYSTEM_INFO_FILE
           echo
-          echo "Execution time benchmark:"
           cat $TIMING_INFO_FILE
           echo
           cat $CLOC_INFO_FILE
-        } > ${{ env.tmp_dir }}/ruleengine_out/report.txt
+        } > ${{ env.tmp_dir }}/ruleengine_out/report.md
         # Delete the original files
         rm -f $GIT_INFO_FILE $SYSTEM_INFO_FILE $CLOC_INFO_FILE $TIMING_INFO_FILE
 
