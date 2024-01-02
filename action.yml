@@ -61,7 +61,7 @@ runs:
         echo "SYSTEM_INFO_FILE=${{ env.tmp_dir }}/ruleengine_out/system_info.txt" >> $GITHUB_ENV
         {
           echo "# System information"
-          neofetch os distro kernel cpu gpu memory --stdout | sed -E 's/^(.*): (.*)$/| \1 | \2 |'
+          neofetch os distro kernel cpu gpu memory --stdout | sed -E 's/^(.*): (.*)$/| \1 | \2 |/'
         } > $SYSTEM_INFO_FILE
     
     - name: Install cloc
