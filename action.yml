@@ -93,7 +93,7 @@ runs:
       if: env.action_version == 'master'
       shell: bash
       run: |
-        curl -s ${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-SoMoX-RuleEngine/releases/latest \
+        curl -s ${{ github.api_url }}/repositories/383484893/releases/latest \
           | grep -E 'browser_download_url' \
           | grep linux \
           | grep x86_64 \
