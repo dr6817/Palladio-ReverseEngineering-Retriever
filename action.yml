@@ -45,7 +45,7 @@ runs:
         {
           echo "# Git repository information"
           echo "|    |    |"
-          echo "|--- | ---|
+          echo "|--- | ---|"
           echo "|Repository URL | $(git config --get remote.origin.url) |"
           echo "|Current Branch | $(git branch --show-current) |"
           echo "|Latest Commit  | $(git log -1 --pretty=format:"%H") |"
@@ -63,7 +63,7 @@ runs:
         {
           echo "# System information"
           echo "|    |    |"
-          echo "|--- | ---|
+          echo "|--- | ---|"
           neofetch os distro kernel cpu gpu memory --stdout | sed -E 's/^(.*): (.*)$/| \1 | \2 |/'
         } > $SYSTEM_INFO_FILE
     
