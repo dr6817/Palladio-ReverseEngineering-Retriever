@@ -132,7 +132,7 @@ runs:
       shell: bash
       working-directory: ${{ env.tmp_dir }}/ruleengine
       env:
-        RULEENGINE_COMMAND: './eclipse -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"'
+        RULEENGINE_COMMAND: './eclipse -nosplash -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/ruleengine_out" -r "${{ inputs.rules }}"'
         TIMING_INFO_FILE: ${{ env.tmp_dir }}/ruleengine_out/timing.md
       run: |
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
