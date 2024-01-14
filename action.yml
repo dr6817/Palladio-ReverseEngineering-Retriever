@@ -150,6 +150,7 @@ runs:
         if [ "${{ inputs.benchmark }}" = "true" ]; then
           # Execute with Hyperfine
           hyperfine --show-output --export-markdown $TIMING_INFO_FILE "$RULEENGINE_COMMAND"
+          cat $TIMING_INFO_FILE
           {
             echo "# RuleEngine execution time"
             # Remove the first column from the table using sed
