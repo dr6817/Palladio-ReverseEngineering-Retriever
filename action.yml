@@ -152,8 +152,8 @@ runs:
           hyperfine --show-output --export-markdown $TIMING_INFO_FILE "$RULEENGINE_COMMAND"
           {
             echo "# RuleEngine execution time"
-            # Remove the Command column using awk and the header separator for that column using sed
-            awk 'BEGIN{FS=OFS="|"}; NR == 1 {print $1,$3,$4,$5,$6} NR > 2 {print}' $TIMING_INFO_FILE | sed '3d'
+            # Remove the first column from the table using sed
+            sed 's/^[^|]*|[^|]*|/|/' $TIMING_INFO_FILE
           } > "${TIMING_INFO_FILE}.tmp" && mv "${TIMING_INFO_FILE}.tmp" "$TIMING_INFO_FILE"
                     
         else
