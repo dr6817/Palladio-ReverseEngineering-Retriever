@@ -17,7 +17,7 @@ inputs:
     required: true
     default: "SPRING,MAVEN"
   benchmark:
-    description: "Whether to benchmark execution time with Hyperfine"
+    description: "Whether use hyperfine to benchmark the execution of the ruleengine, otherwise just the one time execution time is reported"
     required: false
     default: "false"
 
