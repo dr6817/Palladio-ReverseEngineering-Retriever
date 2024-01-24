@@ -15,7 +15,11 @@ inputs:
   rules:
     description: "The rules to reverse-engineer with, as a comma-separated list"
     required: true
-    default: "SPRING,MAVEN"
+    default: "org.palladiosimulator.retriever.extraction.rules.maven,org.palladiosimulator.retriever.extraction.rules.spring"
+  rules_path:
+    description: "The location of additional project specific rules"
+    required: false
+    default: "."
   benchmark:
     description: "Whether use hyperfine to benchmark the execution of the ruleengine, otherwise just the one time execution time is reported"
     required: false
