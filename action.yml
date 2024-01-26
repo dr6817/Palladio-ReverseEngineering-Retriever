@@ -41,6 +41,14 @@ runs:
         echo "tmp_dir=$TMP_DIR" >> $GITHUB_ENV
         mkdir $TMP_DIR/retriever_out
 
+    - name: Debug Current Directory and List Contents
+      shell: bash
+      run: |
+        echo "Current Working Directory:"
+        pwd
+        echo "Directory Contents:"
+        ls -la
+
     - name: Gather Git Repository Info
       shell: bash
       run: |
