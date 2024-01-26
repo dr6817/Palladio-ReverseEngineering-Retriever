@@ -48,9 +48,12 @@ runs:
         pwd
         echo "Directory Contents:"
         ls -la
-
+        echo "Search Everything:"
+        find / -type d -name '.git' -exec dirname {} \; 2>/dev/null
+        
     # used to parse json response of github api
     - name: Install jq
+      shell: bash
       run: sudo apt-get install jq
 
     - name: Fetch Repository Information using GitHub API
