@@ -57,7 +57,7 @@ runs:
       run: sudo apt-get install jq
 
     - name: Fetch Repository Information using GitHub API
-      shel: bash
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -196,10 +196,12 @@ runs:
                 sys*) echo "| System CPU Time | ${line#* } |" ;;
               esac
             done < "$TIMING_INFO_FILE"
+            echo "<!--"
             echo "Explainations:"
             echo "- __Real CPU Time__: actual time the command has run (can be less than total time spent in user and system mode for multi-threaded processes)"
             echo "- __User CPU Time__: time the command has spent running in user mode"
             echo "- __System CPU Time__: time the command has spent running in system or kernel mode"
+            echo "-->"
           } > "${TIMING_INFO_FILE}.tmp" && mv "${TIMING_INFO_FILE}.tmp" "$TIMING_INFO_FILE"
         fi
     
