@@ -49,11 +49,13 @@ runs:
     - name: Fetch Repository Information using GitHub API
       shell: bash
       run: |
-        REPO_URL="https://api.github.com/repos/${{ github.repository }}"
-        DEFAULT_BRANCH=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$REPO_URL" | jq -r .default_branch)
-        LATEST_COMMIT=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$REPO_URL/commits/$DEFAULT_BRANCH" | jq -r .sha)
-    
+        API_URL="https://api.github.com/repos/${{ github.repository }}"
+        REPO_URL=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$API_URL" | jq -r .html_url)
+        DEFAULT_BRANCH=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$API_URL" | jq -r .default_branch)
+        LATEST_COMMIT=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$API_URL/commits/$DEFAULT_BRANCH" | jq -r .sha)
+
         GIT_INFO_FILE="${{ env.tmp_dir }}/retriever_out/git_info.md"
+        echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
         {
           echo "# Git repository information"
           echo "|    |    |"
@@ -63,8 +65,6 @@ runs:
           echo "|Latest Commit  | $LATEST_COMMIT |"
         } > $GIT_INFO_FILE
 
-        cat $GIT_INFO_FILE
-
     - name: Debug Current Directory and List Contents
       continue-on-error: true
       shell: bash
@@ -73,8 +73,8 @@ runs:
         pwd
         echo "Directory Contents:"
         ls -la
-        echo "Search Everything:"
-        find / -type d -name '.git' -exec dirname {} \; 2>/dev/null
+      # echo "Search Everything:"
+      # find / -type d -name '.git' -exec dirname {} \; 2>/dev/null
     
     - name: Install Neofetch
       shell: bash
@@ -168,7 +168,7 @@ runs:
       working-directory: ${{ env.tmp_dir }}/retriever
       env:
         DISPLAY: ":99"
-        RETRIEVER_COMMAND: './eclipse -nosplash -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/retriever_out" -r "${{ inputs.rules }}"'
+        RETRIEVER_COMMAND: './eclipse -nosplash -i "${{ github.workspace }}/${{ inputs.source_path }}" -o "${{ env.tmp_dir }}/eclipse_tmp" -r "${{ inputs.rules }}"'
         TIMING_INFO_FILE: ${{ env.tmp_dir }}/retriever_out/timing.md
       run: |
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
@@ -205,6 +205,26 @@ runs:
             echo "-->"
           } > "${TIMING_INFO_FILE}.tmp" && mv "${TIMING_INFO_FILE}.tmp" "$TIMING_INFO_FILE"
         fi
+
+        mv ${{ env.tmp_dir }}/eclipse_tmp/* ${{ env.tmp_dir }}/retriever_out/
+
+        strace -e trace=file -f -o eclipse_trace.txt "$RETRIEVER_COMMAND" &
+        cat eclipse_trace.txt
+
+        echo ""
+        echo "temporary directories:"
+        ls -la /tmp
+        ls -la /var/tmp
+        ls -la /home/$USER/.cache
+        ls -la ${{ env.tmp_dir }}/retriever
+
+
+    - name: Debug Current Directory and List Contents
+      continue-on-error: true
+      shell: bash
+      run: |
+        echo "Search Everything:"
+        find / -type d -name 'eclipse' -exec dirname {} \; 2>/dev/null
     
     - name: Combine and Clean Up Files
       shell: bash
