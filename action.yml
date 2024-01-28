@@ -58,12 +58,10 @@ runs:
 
     - name: Fetch Repository Information using GitHub API
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         REPO_URL="https://api.github.com/repos/${{ github.repository }}"
-        DEFAULT_BRANCH=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" "$REPO_URL" | jq -r .default_branch)
-        LATEST_COMMIT=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" "$REPO_URL/commits/$DEFAULT_BRANCH" | jq -r .sha)
+        DEFAULT_BRANCH=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$REPO_URL" | jq -r .default_branch)
+        LATEST_COMMIT=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$REPO_URL/commits/$DEFAULT_BRANCH" | jq -r .sha)
     
         GIT_INFO_FILE="${{ env.tmp_dir }}/retriever_out/git_info.md"
         {
