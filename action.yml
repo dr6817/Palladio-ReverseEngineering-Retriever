@@ -208,14 +208,20 @@ runs:
 
         mv ${{ env.tmp_dir }}/eclipse_tmp/* ${{ env.tmp_dir }}/retriever_out/
 
-        strace -e trace=file -f -o eclipse_trace.txt "$RETRIEVER_COMMAND" &
-        cat eclipse_trace.txt
+      #  strace -e trace=file -f -o eclipse_trace.txt "$RETRIEVER_COMMAND" &
+      #  cat eclipse_trace.txt
 
         echo ""
         echo "temporary directories:"
+        echo "tmp"
         ls -la /tmp
+        echo "var tmp"
         ls -la /var/tmp
+        echo "cache"
         ls -la /home/$USER/.cache
+        echo "home"
+        ls -la /Home/$USER
+        echo "retriever"
         ls -la ${{ env.tmp_dir }}/retriever
 
 
