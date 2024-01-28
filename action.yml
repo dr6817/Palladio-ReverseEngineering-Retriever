@@ -214,12 +214,12 @@ runs:
         ls -la /tmp
         echo "var tmp"
         ls -la /var/tmp
-        echo "cache"
-        ls -la /home/$USER/.cache
         echo "home"
-        ls -la /Home/$USER
+        ls -la /Home/$USER 2>/dev/null || echo "No such directory or no permission"
+        echo "home"
+        ls -la ~/ 2>/dev/null || echo "No such directory or no permission"
         echo "retriever"
-        ls -la ${{ env.tmp_dir }}/retriever
+        ls -la ${{ env.tmp_dir }}/retriever 2>/dev/null || echo "No such directory or no permission"
 
 
     - name: Debug Current Directory and List Contents
