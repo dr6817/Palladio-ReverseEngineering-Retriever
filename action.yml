@@ -207,10 +207,7 @@ runs:
         fi
 
         mv ${{ env.tmp_dir }}/eclipse_tmp/* ${{ env.tmp_dir }}/retriever_out/
-
-      #  strace -e trace=file -f -o eclipse_trace.txt "$RETRIEVER_COMMAND" &
-      #  cat eclipse_trace.txt
-
+        
         echo ""
         echo "temporary directories:"
         echo "tmp"
