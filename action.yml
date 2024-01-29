@@ -64,17 +64,6 @@ runs:
           echo "|Default Branch | $DEFAULT_BRANCH |"
           echo "|Latest Commit  | $LATEST_COMMIT |"
         } > $GIT_INFO_FILE
-
-    - name: Debug Current Directory and List Contents
-      continue-on-error: true
-      shell: bash
-      run: |
-        echo "Current Working Directory:"
-        pwd
-        echo "Directory Contents:"
-        ls -la
-      # echo "Search Everything:"
-      # find / -type d -name '.git' -exec dirname {} \; 2>/dev/null
     
     - name: Install Neofetch
       shell: bash
@@ -174,7 +163,18 @@ runs:
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
         if [ "${{ inputs.benchmark }}" = "true" ]; then
           # Execute with Hyperfine
-          hyperfine --show-output --export-markdown $TIMING_INFO_FILE "$RETRIEVER_COMMAND"
+          hyperfine \
+            --warmup 3 \
+            --runs 10 \
+            --show-output \
+            --export-markdown $TIMING_INFO_FILE \
+            --ignore-failure \
+            --cleanup 'sleep 1; pkill -f eclipse; sleep 1; \
+            rm -rf "${{ env.tmp_dir }}/eclipse_tmp"; sleep 1; \
+            rm -rf "${{ env.tmp_dir }}/retriever/workspace"; sleep 1; \
+            echo "cleanup done"' \
+            "$RETRIEVER_COMMAND"
+          
           # Remove the first column from the table using sed
           sed -i 's/^[^|]*|[^|]*|/|/' $TIMING_INFO_FILE
           {
@@ -207,30 +207,6 @@ runs:
         fi
 
         mv ${{ env.tmp_dir }}/eclipse_tmp/* ${{ env.tmp_dir }}/retriever_out/
-        
-        echo ""
-        echo "temporary directories:"
-        echo "tmp"
-        ls -la /tmp
-        echo "var tmp"
-        ls -la /var/tmp
-        echo "home"
-        ls -la /Home/$USER 2>/dev/null || echo "No such directory or no permission"
-        echo "home"
-        ls -la ~/ 2>/dev/null || echo "No such directory or no permission"
-        echo "retriever"
-        ls -la ${{ env.tmp_dir }}/retriever 2>/dev/null || echo "No such directory or no permission"
-        echo "workspace"
-        ls -la ${{ env.tmp_dir }}/retriever/workspace 2>/dev/null || echo "No such directory or no permission"
-        echo "eclipse"
-        ls -la ${{ env.tmp_dir }}/retriever/eclipse 2>/dev/null || echo "No such directory or no permission"
-  
-    - name: Debug Current Directory and List Contents
-      continue-on-error: true
-      shell: bash
-      run: |
-        echo "Search Everything:"
-        find / -type d -name 'eclipse' -exec dirname {} \; 2>/dev/null
     
     - name: Combine and Clean Up Files
       shell: bash
