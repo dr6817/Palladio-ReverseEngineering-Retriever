@@ -52,9 +52,9 @@ runs:
           echo "# Git repository information"
           echo "|    |    |"
           echo "|--- | ---|"
-          echo "|Repository URL | $(git config --get remote.origin.url) |"
-          echo "|Current Branch | $(git branch --show-current) |"
-          echo "|Latest Commit  | $(git log -1 --pretty=format:"%H") |"
+          echo "| Repository URL | $(git config --get remote.origin.url) |"
+          echo "| Branch         | $(git branch --show-current) |"
+          echo "| Commit         | $(git log -1 --pretty=format:"%H") |"
         } > $GIT_INFO_FILE
     
     - name: Install Neofetch
@@ -73,7 +73,6 @@ runs:
           neofetch os distro kernel cpu gpu memory --stdout | \
           sed -E 's/^(.*): (.*)$/| \u\1 | \2 |/' | \
           sed -E 's/ os / OS /; s/ distro / Distro /; s/ kernel / Kernel /; s/ cpu / CPU /; s/ gpu / GPU /; s/ memory / Memory /'
-    } > $SYSTEM_INFO_FILE
         } > $SYSTEM_INFO_FILE
     
     - name: Install cloc
