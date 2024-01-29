@@ -64,6 +64,8 @@ runs:
           echo "|Default Branch | $DEFAULT_BRANCH |"
           echo "|Latest Commit  | $LATEST_COMMIT |"
         } > $GIT_INFO_FILE
+
+        cat $GIT_INFO_FILE
     
     - name: Install Neofetch
       shell: bash
