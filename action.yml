@@ -57,32 +57,6 @@ runs:
           echo "|Latest Commit  | $(git log -1 --pretty=format:"%H") |"
         } > $GIT_INFO_FILE
         cat $GIT_INFO_FILE
-
-    # used to parse json response of github api
-    - name: Install jq
-      shell: bash
-      run: sudo apt-get install jq
-
-    - name: Fetch Repository Information using GitHub API
-      shell: bash
-      run: |
-        API_URL="https://api.github.com/repos/${{ github.repository }}"
-        REPO_URL=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$API_URL" | jq -r .html_url)
-        DEFAULT_BRANCH=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$API_URL" | jq -r .default_branch)
-        LATEST_COMMIT=$(curl -s -H "Authorization: Bearer ${{ github.token }}" "$API_URL/commits/$DEFAULT_BRANCH" | jq -r .sha)
-
-        GIT_INFO_FILE="${{ env.tmp_dir }}/retriever_out/git_info.md"
-        echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
-        {
-          echo "# Git repository information"
-          echo "|    |    |"
-          echo "|--- | ---|"
-          echo "|Repository URL | $REPO_URL |"
-          echo "|Default Branch | $DEFAULT_BRANCH |"
-          echo "|Latest Commit  | $LATEST_COMMIT |"
-        } > $GIT_INFO_FILE
-        ls -la "${{ github.workspace }}/${{ inputs.source_path }}"
-        cat $GIT_INFO_FILE
     
     - name: Install Neofetch
       shell: bash
