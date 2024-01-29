@@ -41,6 +41,23 @@ runs:
         echo "tmp_dir=$TMP_DIR" >> $GITHUB_ENV
         mkdir $TMP_DIR/retriever_out
 
+    - name: Gather Git Repository Info
+      shell: bash
+      run: |
+        GIT_INFO_FILE=${{ env.tmp_dir }}/retriever_out/git_info.md
+        cd "${{ github.workspace }}/${{ inputs.source_path }}"
+        ls -la
+        echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
+        {
+          echo "# Git repository information"
+          echo "|    |    |"
+          echo "|--- | ---|"
+          echo "|Repository URL | $(git config --get remote.origin.url) |"
+          echo "|Current Branch | $(git branch --show-current) |"
+          echo "|Latest Commit  | $(git log -1 --pretty=format:"%H") |"
+        } > $GIT_INFO_FILE
+        cat $GIT_INFO_FILE
+
     # used to parse json response of github api
     - name: Install jq
       shell: bash
@@ -64,7 +81,7 @@ runs:
           echo "|Default Branch | $DEFAULT_BRANCH |"
           echo "|Latest Commit  | $LATEST_COMMIT |"
         } > $GIT_INFO_FILE
-
+        ls -la "${{ github.workspace }}/${{ inputs.source_path }}"
         cat $GIT_INFO_FILE
     
     - name: Install Neofetch
