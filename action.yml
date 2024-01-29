@@ -56,7 +56,6 @@ runs:
           echo "|Current Branch | $(git branch --show-current) |"
           echo "|Latest Commit  | $(git log -1 --pretty=format:"%H") |"
         } > $GIT_INFO_FILE
-        cat $GIT_INFO_FILE
     
     - name: Install Neofetch
       shell: bash
@@ -69,9 +68,12 @@ runs:
         echo "SYSTEM_INFO_FILE=$SYSTEM_INFO_FILE" >> $GITHUB_ENV
         {
           echo "# System information"
-          echo "|    |    |"
-          echo "|--- | ---|"
-          neofetch os distro kernel cpu gpu memory --stdout | sed -E 's/^(.*): (.*)$/| \1 | \2 |/'
+          echo "| Attribute | Value |"
+          echo "| --------- | ----- |"
+          neofetch os distro kernel cpu gpu memory --stdout | \
+          sed -E 's/^(.*): (.*)$/| \u\1 | \2 |/' | \
+          sed -E 's/ os / OS /; s/ distro / Distro /; s/ kernel / Kernel /; s/ cpu / CPU /; s/ gpu / GPU /; s/ memory / Memory /'
+    } > $SYSTEM_INFO_FILE
         } > $SYSTEM_INFO_FILE
     
     - name: Install cloc
