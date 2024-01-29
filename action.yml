@@ -164,8 +164,19 @@ runs:
         if [ "${{ inputs.benchmark }}" = "true" ]; then
           mkdir "${{ env.tmp_dir }}/eclipse_tmp"
           # Execute with Hyperfine
-          hyperfine --warmup 3 --runs 10 --ignore-failure --show-output --export-markdown $TIMING_INFO_FILE "$RETRIEVER_COMMAND"
+          # hyperfine --warmup 3 --runs 10 --ignore-failure --show-output --export-markdown $TIMING_INFO_FILE "$RETRIEVER_COMMAND"
           # hyperfine --warmup 3 --runs 10 --export-markdown $TIMING_INFO_FILE --ignore-failure --prepare 'sleep 1; pkill -f eclipse; sleep 1; rm -rf "${{ env.tmp_dir }}/eclipse_tmp"; sleep 1; rm -rf "${{ env.tmp_dir }}/retriever/workspace"; sleep 1; echo "ok"' "$RETRIEVER_COMMAND"
+          hyperfine \
+            --warmup 3 \
+            --runs 10 \
+            --show-output \
+            --ignore-failure \
+            --export-markdown $TIMING_INFO_FILE \
+            --prepare 'sleep 1; \
+            rm -rf "${{ env.tmp_dir }}/eclipse_tmp"; sleep 1; \
+            rm -rf "${{ env.tmp_dir }}/retriever/workspace"; sleep 1; \
+            echo "cleanup done"' \
+            "$RETRIEVER_COMMAND"
           
           # Remove the first column from the table using sed
           sed -i 's/^[^|]*|[^|]*|/|/' $TIMING_INFO_FILE
