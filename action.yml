@@ -169,7 +169,7 @@ runs:
             --show-output \
             --export-markdown $TIMING_INFO_FILE \
             --ignore-failure \
-            --cleanup 'sleep 1; pkill -f eclipse; sleep 1; \
+            --prepare 'sleep 1; pkill -f eclipse; sleep 1; \
             rm -rf "${{ env.tmp_dir }}/eclipse_tmp"; sleep 1; \
             rm -rf "${{ env.tmp_dir }}/retriever/workspace"; sleep 1; \
             echo "cleanup done"' \
