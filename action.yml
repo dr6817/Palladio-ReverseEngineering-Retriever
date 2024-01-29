@@ -220,8 +220,11 @@ runs:
         ls -la ~/ 2>/dev/null || echo "No such directory or no permission"
         echo "retriever"
         ls -la ${{ env.tmp_dir }}/retriever 2>/dev/null || echo "No such directory or no permission"
-
-
+        echo "workspace"
+        ls -la ${{ env.tmp_dir }}/retriever/workspace 2>/dev/null || echo "No such directory or no permission"
+        echo "eclipse"
+        ls -la ${{ env.tmp_dir }}/retriever/eclipse 2>/dev/null || echo "No such directory or no permission"
+  
     - name: Debug Current Directory and List Contents
       continue-on-error: true
       shell: bash
