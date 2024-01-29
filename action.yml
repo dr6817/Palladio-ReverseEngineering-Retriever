@@ -162,6 +162,7 @@ runs:
       run: |
         echo "TIMING_INFO_FILE=$TIMING_INFO_FILE" >> $GITHUB_ENV
         if [ "${{ inputs.benchmark }}" = "true" ]; then
+          mkdir "${{ env.tmp_dir }}/eclipse_tmp"
           # Execute with Hyperfine
           hyperfine --warmup 3 --runs 10 --export-markdown $TIMING_INFO_FILE --ignore-failure --prepare 'sleep 1; pkill -f eclipse; sleep 1; rm -rf "${{ env.tmp_dir }}/eclipse_tmp"; sleep 1; rm -rf "${{ env.tmp_dir }}/retriever/workspace"; sleep 1; echo "ok"' "$RETRIEVER_COMMAND"
           
