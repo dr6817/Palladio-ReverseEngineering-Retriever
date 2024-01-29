@@ -172,7 +172,7 @@ runs:
             --show-output \
             --ignore-failure \
             --export-markdown $TIMING_INFO_FILE \
-            --prepare 'sleep 1; \
+            --prepare 'ps aux | grep '[e]clipse'; echo "no?"; sleep 1; \
             rm -rf "${{ env.tmp_dir }}/eclipse_tmp"; sleep 1; \
             rm -rf "${{ env.tmp_dir }}/retriever/workspace"; sleep 1; \
             echo "cleanup done"' \
