@@ -86,7 +86,8 @@ runs:
         echo "CLOC_INFO_FILE=$CLOC_INFO_FILE" >> $GITHUB_ENV
         {
           echo "# Cloc analysis"
-          cloc ${{ inputs.source_path }} --unicode --autoconf --diff-timeout 300 --docstring-as-code --read-binary-files --md --quiet
+          cloc ${{ inputs.source_path }} --unicode --autoconf --diff-timeout 300 --docstring-as-code --read-binary-files --md --quiet | \
+          sed -e '1s/cloc|github.com\/AlDanial\///' -e '/^--- | ---$/d'
         } > $CLOC_INFO_FILE
 
     - name: Get action version
