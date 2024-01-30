@@ -87,7 +87,7 @@ runs:
         {
           echo "# Cloc analysis"
           cloc ${{ inputs.source_path }} --unicode --autoconf --diff-timeout 300 --docstring-as-code --read-binary-files --md --quiet | \
-          sed -e '1s/cloc|github.com\/AlDanial\///' -e '/^--- | ---$/d'
+          sed -e '1d; 2s/cloc|github.com\/AlDanial\///; /^--- | ---$/d'
         } > $CLOC_INFO_FILE
 
     - name: Get action version
