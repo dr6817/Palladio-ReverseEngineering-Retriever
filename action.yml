@@ -46,7 +46,6 @@ runs:
       run: |
         GIT_INFO_FILE=${{ env.tmp_dir }}/retriever_out/git_info.md
         cd "${{ github.workspace }}/${{ inputs.source_path }}"
-        ls -la
         echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
         {
           echo "# Git repository information"
@@ -55,6 +54,7 @@ runs:
           echo "| Repository URL | $(git config --get remote.origin.url) |"
           echo "| Branch         | $(git branch --show-current) |"
           echo "| Commit         | $(git log -1 --pretty=format:"%H") |"
+          echo "| Date           | $(date -u) |"
         } > $GIT_INFO_FILE
     
     - name: Install Neofetch
