@@ -44,10 +44,11 @@ runs:
     - name: Gather Git Repository Info
       shell: bash
       run: |
-        GIT_INFO_FILE=${{ env.tmp_dir }}/retriever_out/git_info.md
-        cd "${{ github.workspace }}/${{ inputs.source_path }}"
+        GIT_INFO_FILE="${{ env.tmp_dir }}/retriever_out/git_info.md"
+        SOURCE_PATH="${{ github.workspace }}/${{ inputs.source_path }}"
         echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
-        {
+    
+        gather_git_info() {
           echo "# Git repository information"
           echo "|    |    |"
           echo "|--- | ---|"
@@ -55,7 +56,25 @@ runs:
           echo "| Branch         | $(git branch --show-current) |"
           echo "| Commit         | $(git log -1 --pretty=format:"%H") |"
           echo "| Date           | $(date -u) |"
-        } > $GIT_INFO_FILE
+        }
+    
+        if [ -d "$SOURCE_PATH/.git" ]; then
+          cd "$SOURCE_PATH"
+          gather_git_info > "$GIT_INFO_FILE"
+        else
+          FOUND_REPO=false
+          for d in "$SOURCE_PATH"/*; do
+            if [ -d "$d/.git" ]; then
+              cd "$d"
+              gather_git_info >> "$GIT_INFO_FILE"
+              FOUND_REPO=true
+            fi
+          done
+          if [ "$FOUND_REPO" = false ]; then
+            echo "no git repository found" > "$GIT_INFO_FILE"
+          fi
+        fi
+
     
     - name: Install Neofetch
       shell: bash
