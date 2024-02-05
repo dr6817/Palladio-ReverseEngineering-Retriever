@@ -47,9 +47,8 @@ runs:
         GIT_INFO_FILE="${{ env.tmp_dir }}/retriever_out/git_info.md"
         SOURCE_PATH="${{ github.workspace }}/${{ inputs.source_path }}"
         echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
-    
+
         gather_git_info() {
-          echo "# Git repository information"
           echo "|    |    |"
           echo "|--- | ---|"
           echo "| Repository URL | $(git config --get remote.origin.url) |"
@@ -57,15 +56,24 @@ runs:
           echo "| Commit         | $(git log -1 --pretty=format:"%H") |"
           echo "| Date           | $(date -u) |"
         }
-    
+
+        print_header() {
+          echo "# Git repository information"
+          echo "Date of execution: $(date -u)"
+        }
+
         if [ -d "$SOURCE_PATH/.git" ]; then
           cd "$SOURCE_PATH"
+          print_header > "$GIT_INFO_FILE"
           gather_git_info > "$GIT_INFO_FILE"
         else
           FOUND_REPO=false
           for d in "$SOURCE_PATH"/*; do
             if [ -d "$d/.git" ]; then
               cd "$d"
+              if [ "$FOUND_REPO" = false ]; then
+                print_header > "$GIT_INFO_FILE"
+              fi
               gather_git_info >> "$GIT_INFO_FILE"
               FOUND_REPO=true
             fi
@@ -74,8 +82,6 @@ runs:
             echo "no git repository found" > "$GIT_INFO_FILE"
           fi
         fi
-
-        cat "$GIT_INFO_FILE"
 
     
     - name: Install Neofetch
