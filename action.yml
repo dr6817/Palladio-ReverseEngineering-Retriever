@@ -54,6 +54,7 @@ runs:
           echo "| Repository URL | $(git config --get remote.origin.url) |"
           echo "| Branch         | $(git branch --show-current) |"
           echo "| Commit         | $(git log -1 --pretty=format:"%H") |"
+          echo ""
         }
 
         print_header() {
