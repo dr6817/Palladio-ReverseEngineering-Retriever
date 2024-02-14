@@ -45,12 +45,19 @@ runs:
       shell: bash
       run: |
         RETRIEVER_INFO_FILE=${{ env.tmp_dir }}/retriever_out/retriever_info.md
+        
+        if [[ "${{ env.action_version }}" == "main" ]]; then
+            REPO=${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest
+          else
+            REPO=${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/tags/${{ env.action_version }}
+        fi
+
         echo "RETRIEVER_INFO_FILE=$RETRIEVER_INFO_FILE" >> $GITHUB_ENV
         {
           echo "# [Retriever](https://github.com/PalladioSimulator/Palladio-ReverseEngineering-Retriever) Report"
           echo "| Version | Date |"
           echo "| ------- | ---- |"
-          echo "| $(curl -sL ${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest | jq  -r ".tag_name") | $(date -u) |"
+          echo "| $(curl -sL "$REPO" | jq  -r ".tag_name") | $(date -u) |"
         } > $RETRIEVER_INFO_FILE
 
     - name: Gather Git Repository Info
@@ -61,6 +68,7 @@ runs:
         echo "GIT_INFO_FILE=$GIT_INFO_FILE" >> $GITHUB_ENV
 
         gather_git_info() {
+          echo "Content"
           echo "|    Attribute   | Value |"
           echo "| -------------- | ----- |"
           echo "| Repository URL | $(git config --get remote.origin.url) |"
@@ -70,6 +78,7 @@ runs:
         }
 
         print_header() {
+          echo "HEADER2"
           echo "# Git repository information"
           echo "Date of execution: $(date -u)"
         }
@@ -77,6 +86,7 @@ runs:
         # gather git repository information of the source directory or the containing directories
         if [ -d "$SOURCE_PATH/.git" ]; then
           cd "$SOURCE_PATH"
+          echo "HEADER"
           print_header > "$GIT_INFO_FILE"
           gather_git_info > "$GIT_INFO_FILE"
         else
@@ -95,6 +105,8 @@ runs:
             echo "no git repository found" > "$GIT_INFO_FILE"
           fi
         fi
+
+        cat $GIT_INFO_FILE
 
     - name: Install Neofetch
       shell: bash
