@@ -87,15 +87,15 @@ runs:
         if [ -d "$SOURCE_PATH/.git" ]; then
           cd "$SOURCE_PATH"
           echo "HEADER"
-          print_header > "$GIT_INFO_FILE"
-          gather_git_info > "$GIT_INFO_FILE"
+          print_header >> "$GIT_INFO_FILE"
+          gather_git_info >> "$GIT_INFO_FILE"
         else
           FOUND_REPO=false
           for d in "$SOURCE_PATH"/*; do
             if [ -d "$d/.git" ]; then
               cd "$d"
               if [ "$FOUND_REPO" = false ]; then
-                print_header > "$GIT_INFO_FILE"
+                print_header >> "$GIT_INFO_FILE"
               fi
               gather_git_info >> "$GIT_INFO_FILE"
               FOUND_REPO=true
