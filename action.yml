@@ -41,23 +41,27 @@ runs:
         echo "tmp_dir=$TMP_DIR" >> $GITHUB_ENV
         mkdir $TMP_DIR/retriever_out
 
+    
+    - name: Determine Retriever Version
+      shell: bash
+      run: |
+        if [[ "${{ env.action_version }}" == "main" ]]; then
+            echo "retriever=${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest" >> $GITHUB_ENV
+        else
+         echo "retriever=${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/tags/${{ env.action_version }}" >> $GITHUB_ENV
+        fi
+
     - name: Gather Retriever Info
       shell: bash
       run: |
         RETRIEVER_INFO_FILE=${{ env.tmp_dir }}/retriever_out/retriever_info.md
-        
-        if [[ "${{ env.action_version }}" == "main" ]]; then
-            REPO=${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest
-          else
-            REPO=${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/tags/${{ env.action_version }}
-        fi
 
         echo "RETRIEVER_INFO_FILE=$RETRIEVER_INFO_FILE" >> $GITHUB_ENV
         {
           echo "# [Retriever](https://github.com/PalladioSimulator/Palladio-ReverseEngineering-Retriever) Report"
           echo "| Version | Date |"
           echo "| ------- | ---- |"
-          echo "| $(curl -sL "$REPO" | jq  -r ".tag_name") | $(date -u) |"
+          echo "| $(curl -sL ${{ env.retriever }} | jq  -r ".tag_name") | $(date -u) |"
         } > $RETRIEVER_INFO_FILE
 
     - name: Gather Git Repository Info
