@@ -152,13 +152,26 @@ runs:
 
     - name: Download Retriever
       shell: bash
-      run: |
-        curl -s ${{ env.retriever }} \
-          | grep -E 'browser_download_url' \
-          | grep linux \
-          | grep x86_64 \
-          | grep -Eo 'https://[^\"]*' \
-          | xargs wget -O "${{ env.tmp_dir }}/retriever.zip"
+      run: |        
+        # Execute the curl command and save its output to a variable
+        output=$(curl -s https://api.github.com/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest)
+        
+        # Check if the output contains 'browser_download_url'. If not, print a warning and the output.
+        echo "$output" | grep 'browser_download_url' > /dev/null
+        if [ $? -ne 0 ]; then
+            echo "Warning: 'browser_download_url' not found in the curl command output."
+            echo "Curl command output:"
+            echo "$output"
+            exit 1
+        else
+            # If 'browser_download_url' is found, proceed with the rest of the commands.
+            echo "$output" | grep -E 'browser_download_url' \
+            | grep linux \
+            | grep x86_64 \
+            | grep -Eo 'https://[^\"]*' \
+            | xargs wget -O "${{ env.tmp_dir }}/retriever.zip"
+        fi
+
 
     - name: Extract Retriever
       shell: bash
