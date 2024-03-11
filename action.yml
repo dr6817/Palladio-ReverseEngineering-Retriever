@@ -153,23 +153,41 @@ runs:
     - name: Download Retriever
       shell: bash
       run: |        
-        # Execute the curl command and save its output to a variable
-        output=$(curl -s https://api.github.com/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest)
+        max_retries=3
+        attempt=0
+        success=0
         
-        # Check if the output contains 'browser_download_url'. If not, print a warning and the output.
-        echo "$output" | grep 'browser_download_url' > /dev/null
-        if [ $? -ne 0 ]; then
-            echo "Warning: 'browser_download_url' not found in the curl command output."
-            echo "Curl command output:"
-            echo "$output"
+        while [ $attempt -lt $max_retries ]; do
+            # Increment attempt counter
+            ((attempt=attempt+1))
+            
+            echo "Attempt $attempt of $max_retries..."
+            
+            # Execute the curl command and save its output
+            output=$(curl -s ${{ github.api_url }}/repos/PalladioSimulator/Palladio-ReverseEngineering-Retriever/releases/latest)
+            
+            # Check for 'browser_download_url'
+            echo "$output" | grep 'browser_download_url' > /dev/null
+            if [ $? -eq 0 ]; then
+                # If found, use the URL to download the file with wget
+                echo "$output" | grep -E 'browser_download_url' \
+                | grep linux \
+                | grep x86_64 \
+                | grep -Eo 'https://[^\"]*' \
+                | xargs wget -O "${{ env.tmp_dir }}/retriever.zip"
+                
+                success=1
+                break # Exit loop on success
+            else
+                echo "URL not found, retrying..."
+                sleep 5 # Wait for 5 seconds before retrying
+            fi
+        done
+
+        # Check if the download was successful
+        if [ $success -ne 1 ]; then
+            echo "Failed to find the download URL for the retriever after $max_retries attempts."
             exit 1
-        else
-            # If 'browser_download_url' is found, proceed with the rest of the commands.
-            echo "$output" | grep -E 'browser_download_url' \
-            | grep linux \
-            | grep x86_64 \
-            | grep -Eo 'https://[^\"]*' \
-            | xargs wget -O "${{ env.tmp_dir }}/retriever.zip"
         fi
 
 
